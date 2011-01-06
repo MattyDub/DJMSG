@@ -17,14 +17,10 @@
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 
-
-class MainHandler(webapp.RequestHandler):
-    def get(self):
-        self.response.out.write('Hello world!')
-
+import handlers
 
 def main():
-    application = webapp.WSGIApplication([('/', MainHandler)],
+    application = webapp.WSGIApplication([('/', handlers.MainHandler)],
                                          debug=True)
     util.run_wsgi_app(application)
 
