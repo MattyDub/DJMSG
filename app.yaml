@@ -1,8 +1,9 @@
-application: MSG
+application: msg
 version: 1
 runtime: python
 api_version: 1
 
 handlers:
-- url: .*
+- url: /.*
   script: main.py
+  login: required
