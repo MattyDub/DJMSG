@@ -14,6 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# MODIFIED BY MATTHEW WYATT
+# (I moved the main handler stuff to a different module)
+
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 
@@ -23,7 +26,6 @@ def main():
     application = webapp.WSGIApplication([('/', handlers.MainHandler)],
                                          debug=True)
     util.run_wsgi_app(application)
-
 
 if __name__ == '__main__':
     main()
