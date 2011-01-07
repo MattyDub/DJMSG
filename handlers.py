@@ -26,7 +26,8 @@ class MainHandler(webapp.RequestHandler):
 	logging.info("In get!")
 	user = users.get_current_user()
 	if user:
-	    message = ('Hello, %s' % user.nickname())
+	    #TODO: set up session stuff?
+	    #TODO: queries for games for this user
 	    template_values = {}
 	    template_values['name'] = user.nickname()
 	    template_values['url'] = users.create_logout_url(self.request.uri)
