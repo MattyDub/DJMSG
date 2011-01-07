@@ -11,16 +11,27 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
 from google.appengine.ext import webapp
+from google.appengine.ext.webapp import template
 from google.appengine.api import users
+from google.appengine.ext.webapp.util import login_required
+import os, logging
 
+#The below class is based on the MainHandler created by Google Inc.,
+#(c) 2007
 class MainHandler(webapp.RequestHandler):
+    @login_required
     def get(self):
+	logging.info("In get!")
 	user = users.get_current_user()
 	if user:
 	    message = ('Hello, %s' % user.nickname())
+	    template_values = {}
+	    template_values['name'] = user.nickname()
+	    template_values['url'] = users.create_logout_url(self.request.uri)
+	    path = os.path.join(os.path.dirname(__file__), 'index.html')
+	    self.response.out.write(template.render(path, template_values))
 	else:
-	    message = ('Hello world!')
-	self.response.out.write(message)
+	    pass # do redirect to login here?
+	
