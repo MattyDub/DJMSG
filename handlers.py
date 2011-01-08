@@ -16,6 +16,8 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.api import users
 from google.appengine.ext.webapp.util import login_required
+from google.appengine.ext.db import GqlQuery
+import models
 import os, logging
 
 #The below class is based on the MainHandler created by Google Inc.,
@@ -27,8 +29,11 @@ class MainHandler(webapp.RequestHandler):
 	user = users.get_current_user()
 	if user:
 	    #TODO: set up session stuff?
-	    #TODO: queries for games for this user
+	    query = models.Game.all()
+	    query.filter('user =', user)
 	    template_values = {}
+	    results = query.fetch(10)
+	    template_values['games'] = results
 	    template_values['name'] = user.nickname()
 	    template_values['url'] = users.create_logout_url(self.request.uri)
 	    path = os.path.join(os.path.dirname(__file__), 'index.html')
