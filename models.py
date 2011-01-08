@@ -15,17 +15,17 @@
 from google.appengine.ext import db
 from google.appengine.api import users
 
+class GameState(db.Model):
+    active_player = db.UserProperty()
+    state = db.StringProperty(choices = ('wait_for_player','active','complete'))
+
 class Unit(db.Model):
     player = db.UserProperty(required=True)
-    kind = db.StringProperty(required=True, choices = set(['Infantry','Cavalry','Archers']))
+    unit_type = db.StringProperty(required=True, choices = set(['Infantry','Cavalry','Archers']))
     xpos = db.IntegerProperty()
     ypos = db.IntegerProperty()
     attack = db.StringProperty() # This is iffy - don't know how this will work yet
-
-class GameState(db.Model):
-    units = db.ListProperty(Unit)
-    active_player = db.UserProperty()
-    state = db.StringProperty(choices = ('wait_for_player','active','complete'))
+    state = db.ReferenceProperty(GameState, collection_name='units')
 
 class Game(db.Model):
     map = db.StringProperty() # name of map
