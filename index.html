@@ -6,5 +6,9 @@
        Hello, I love you, won't you tell me your name?
     {% endif %}
     <a href="{{ url }}">logout</a>
+    <h2>GAMES</h2>
+    {% for game in games %}
+      <b>{{ game }}</b>
+    {% endfor %}
   </body>
 </html>
