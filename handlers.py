@@ -14,6 +14,7 @@
 
 from google.appengine.api import users
 from google.appengine.api import taskqueue
+from google.appengine.api import mail
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import login_required
 from google.appengine.ext.db import GqlQuery, run_in_transaction
@@ -56,7 +57,6 @@ class GameStartTask(webapp.RequestHandler):
 	address = self.request.get('address')
 	starting_player = self.request.get('player')
 	logging.info(starting_player + ' is trying to start game with ' + address)
-	newgameid = ''
 	#Create game in data store
 	user = users.User(starting_player)
 	#TODO: still need to set Map
@@ -71,3 +71,12 @@ class GameStartTask(webapp.RequestHandler):
 	#Get id for game
 	logging.info(('New game id = "%d"' % newgameid))
 	# Create HTML email containing form for the opponent to join
+	msg = mail.EmailMessage(to=address,
+				sender=self.request.get('player'),
+				subject='Shall we play a game?',
+				html=('<html><body>You have been invited to play a game with %s. To do so, visit <a href="http://msg.appspot.com/joingame/%d">http://msg.appspot.com/joingame/%d</a>!' % (starting_player, newgameid, newgameid)))
+	try:
+	    msg.check_initialized()
+	    msg.send()
+	except mail.Error:
+	    logging.error("Email message not initialized properly! " + type(e))
