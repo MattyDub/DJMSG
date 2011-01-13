@@ -16,7 +16,7 @@ from google.appengine.api import users
 from google.appengine.api import taskqueue
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import login_required
-from google.appengine.ext.db import GqlQuery
+from google.appengine.ext.db import GqlQuery, run_in_transaction
 from google.appengine.ext.webapp import template
 import models
 import os, logging
@@ -47,14 +47,27 @@ class GameStart(webapp.RequestHandler):
 	#DANGER NOT SANITIZED!
 	address = self.request.get("address")
 	logging.info('Trying to start game with email address: ' + address)
-	taskqueue.add(url='/tasks/start', params={'address':address})
+	taskqueue.add(url='/tasks/start', params={'address':address, 'player':users.get_current_user().email()})
 	# TODO: make idempotent
 	self.redirect('/')
 
 class GameStartTask(webapp.RequestHandler):
     def post(self):
 	address = self.request.get('address')
-	logging.info('Trying to start game with ' + address)
+	starting_player = self.request.get('player')
+	logging.info(starting_player + ' is trying to start game with ' + address)
+	newgameid = ''
 	#Create game in data store
+	user = users.User(starting_player)
+	#TODO: still need to set Map
+	newstate = models.GameState(state='wait_for_player',
+				    active_player = user)
+	newstate.put()
+	ps = []
+	ps.append(user)
+	game = models.Game(state = newstate, players = ps)
+	game.put()
+	newgameid = game.key().id()
 	#Get id for game
+	logging.info(('New game id = "%d"' % newgameid))
 	# Create HTML email containing form for the opponent to join
