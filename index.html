@@ -6,9 +6,18 @@
        Hello, I love you, won't you tell me your name?
     {% endif %}
     <a href="{{ url }}">logout</a>
-    <h2>GAMES</h2>
-    {% for game in games %}
+    <div id="gamelist">
+      <h2>GAMES</h2>
+      {% for game in games %}
       <b>{{ game }}</b>
-    {% endfor %}
+      {% endfor %}
+    </div>
+  <div id="newgame">
+    <form action="/startgame" method="post">
+      <label for="address">Opponent's address:</label>
+      <input name="address" type="text"/><br/>
+      <input type="submit" value="Invite opponent"/>
+    </form>
+  </div>
   </body>
 </html>
