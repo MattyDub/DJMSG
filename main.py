@@ -23,7 +23,9 @@ from google.appengine.ext.webapp import util
 import handlers
 
 def main():
-    application = webapp.WSGIApplication([('/', handlers.MainHandler)],
+    application = webapp.WSGIApplication([('/', handlers.MainHandler),
+					  ('/startgame', handlers.GameStart),
+					  ('/tasks/start', handlers.GameStartTask)],
                                          debug=True)
     util.run_wsgi_app(application)
 
