@@ -48,10 +48,40 @@ class GameStart(webapp.RequestHandler):
 	#DANGER NOT SANITIZED!
 	address = self.request.get("address")
 	logging.info('Trying to start game with email address: ' + address)
-	taskqueue.add(url='/tasks/start', params={'address':address, 'player':users.get_current_user().email()})
+	taskqueue.add(url='/tasks/start', params={'address':address,
+						  'player':users.get_current_user().email()})
 	# TODO: make idempotent
 	self.redirect('/')
 
+class GameJoinHandler(webapp.RequestHandler):
+    @login_required
+    def get(self, id):
+	id = int(id)
+	user = users.get_current_user()
+	game = models.Game.get_by_id(id)
+	if game:
+	    logging.info("players for game " + str(id))
+	    for p in game.players:
+		logging.info(p)
+	    if user in game.players:
+		template_values = {}
+		state = game.state
+		opp= state.active_player.nickname()
+		url = "http://msg.appspot.com/joingame/%d" % id
+		template_values['opponent'] = opp
+		template_vaules['url'] = url
+		path = os.path.join(os.path.dirname(__file__), 'joingame.html')
+		self.response.out.write(template.render(path, template_values))
+	    else:
+		self.response.out.write("You aren't authorized to see this game. If you feel you reached this message in error, please contact a site administrator.")
+	else: #TODO: figure this out
+	    self.response.out.write("You are trying to join a game that doesn't exist.  If you feel this is an error, please contact the site administrator.")
+
+    def post(self, id):
+	#TODO: actually start game
+	pass
+	    
+#TODO: starting and joining should be POST methods; how do we make a game join a POST?
 class GameStartTask(webapp.RequestHandler):
     def post(self):
 	address = self.request.get('address')
