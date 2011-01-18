@@ -45,7 +45,7 @@ class MainHandler(webapp.RequestHandler):
 	
 class GameStart(webapp.RequestHandler):
     def post(self):
-	#DANGER NOT SANITIZED!
+	#TODO: DANGER NOT SANITIZED!
 	address = self.request.get("address")
 	logging.info('Trying to start game with email address: ' + address)
 	taskqueue.add(url='/tasks/start', params={'address':address,
@@ -78,8 +78,19 @@ class GameJoinHandler(webapp.RequestHandler):
 	    self.response.out.write("You are trying to join a game that doesn't exist.  If you feel this is an error, please contact the site administrator.")
 
     def post(self, id):
-	#TODO: actually start game
-	pass
+	#TODO: actually start game: set up map, add joining player to
+	#list of players, change game state to 'active'
+        game = models.Game.get_by_id(id)
+        user = users.get_current_user()
+        if game and user:
+            game.mapname = 'Open Field'
+            game.players.append(user)
+            state = game.state
+            state.state = 'active'
+            state.put()
+            game.put()
+        else: #no game or no user: TODO
+            self.response.out.write("Either you aren't logged in, or you're trying to join a game that doesn't exist.  If you feel you have reached this message in error, please contact an administrator.")
 	    
 #TODO: starting and joining should be POST methods; how do we make a game join a POST?
 class GameStartTask(webapp.RequestHandler):
@@ -89,7 +100,6 @@ class GameStartTask(webapp.RequestHandler):
 	logging.info(starting_player + ' is trying to start game with ' + address)
 	#Create game in data store
 	user = users.User(starting_player)
-	#TODO: still need to set Map
 	newstate = models.GameState(state='wait_for_player',
 				    active_player = user)
 	newstate.put()
