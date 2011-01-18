@@ -21,14 +21,15 @@ class GameState(db.Model):
 
 class Unit(db.Model):
     player = db.UserProperty(required=True)
-    unit_type = db.StringProperty(required=True, choices = set(['Infantry','Cavalry','Archers']))
+    unit_type = db.StringProperty(required=True,
+                                  choices = set(['Infantry','Cavalry','Archers']))
     xpos = db.IntegerProperty()
     ypos = db.IntegerProperty()
     attack = db.StringProperty() # This is iffy - don't know how this will work yet
     state = db.ReferenceProperty(GameState, collection_name='units')
 
 class Game(db.Model):
-    map = db.StringProperty() # name of map
+    mapname = db.StringProperty() # name of map
     players = db.ListProperty(users.User)
     state = db.ReferenceProperty(GameState)
     
