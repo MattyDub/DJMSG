@@ -30,6 +30,7 @@ class Unit(db.Model):
 
 class Game(db.Model):
     mapname = db.StringProperty() # name of map
+    idhash = db.StringProperty() # md5 hash to id game
     players = db.ListProperty(users.User)
     state = db.ReferenceProperty(GameState)
     

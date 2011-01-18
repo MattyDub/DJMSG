@@ -21,6 +21,7 @@ from google.appengine.ext.db import GqlQuery, run_in_transaction
 from google.appengine.ext.webapp import template
 import models
 import os, logging
+from hashlib import md5
 
 #The below class is based on the MainHandler created by Google Inc.,
 #(c) 2007
@@ -35,6 +36,7 @@ class MainHandler(webapp.RequestHandler):
 	    query.filter('user = ', user)
 	    template_values = {}
 	    results = query.fetch(10)
+            logging.info("There are %d game(s) for logged-in user %s" % (len(results), user))
 	    template_values['games'] = results
 	    template_values['name'] = user.nickname()
 	    template_values['url'] = users.create_logout_url(self.request.uri)
@@ -56,41 +58,49 @@ class GameStart(webapp.RequestHandler):
 class GameJoinHandler(webapp.RequestHandler):
     @login_required
     def get(self, id):
-	id = int(id)
 	user = users.get_current_user()
-	game = models.Game.get_by_id(id)
-	if game:
+	query = models.Game.all()
+        query.filter('idhash = ', id)
+        results = query.fetch(1) # TODO: is there a better way to do this?
+	if results:
+            logging.info("# of games for hash = " + str(len(results)))
+            game = results[0]
 	    logging.info("players for game " + str(id))
 	    for p in game.players:
 		logging.info(p)
-	    if user in game.players:
-		template_values = {}
-		state = game.state
-		opp= state.active_player.nickname()
-		url = "http://msg.appspot.com/joingame/%d" % id
-		template_values['opponent'] = opp
-		template_vaules['url'] = url
-		path = os.path.join(os.path.dirname(__file__), 'joingame.html')
-		self.response.out.write(template.render(path, template_values))
-	    else:
-		self.response.out.write("You aren't authorized to see this game. If you feel you reached this message in error, please contact a site administrator.")
+            template_values = {}
+            state = game.state
+            opp= state.active_player.nickname()
+            url = "/joingame/%s" % id
+            template_values['opponent'] = opp
+            template_values['url'] = url
+            path = os.path.join(os.path.dirname(__file__), 'joingame.html')
+            self.response.out.write(template.render(path, template_values))
 	else: #TODO: figure this out
 	    self.response.out.write("You are trying to join a game that doesn't exist.  If you feel this is an error, please contact the site administrator.")
 
     def post(self, id):
 	#TODO: actually start game: set up map, add joining player to
 	#list of players, change game state to 'active'
-        game = models.Game.get_by_id(id)
-        user = users.get_current_user()
-        if game and user:
-            game.mapname = 'Open Field'
-            game.players.append(user)
-            state = game.state
-            state.state = 'active'
-            state.put()
-            game.put()
-        else: #no game or no user: TODO
-            self.response.out.write("Either you aren't logged in, or you're trying to join a game that doesn't exist.  If you feel you have reached this message in error, please contact an administrator.")
+        logging.info("Invited player joining game " + id)
+	query = models.Game.all()
+        query.filter('idhash = ', id)
+        results = query.fetch(1) # TODO: is there a better way to do this?
+        if results and len(results) > 0:
+            game = results[0]
+            user = users.get_current_user()
+            if game and user:
+                game.mapname = 'Open Field'
+                game.players.append(user)
+                state = game.state
+                state.state = 'active'
+                state.put()
+                game.put()
+                l = game.players
+                logging.info("Players for game are: '" + ",".join(l) + "'")
+                self.redirect('/')
+            else: #no game or no user: TODO
+                self.response.out.write("Either you aren't logged in, or you're trying to join a game that doesn't exist.  If you feel you have reached this message in error, please contact an administrator.")
 	    
 #TODO: starting and joining should be POST methods; how do we make a game join a POST?
 class GameStartTask(webapp.RequestHandler):
@@ -108,13 +118,19 @@ class GameStartTask(webapp.RequestHandler):
 	game = models.Game(state = newstate, players = ps)
 	game.put()
 	newgameid = game.key().id()
+        h = md5()
+        h.update(str(newgameid))
+        h.update(address)
+        digest = h.hexdigest()
+        game.idhash = digest
+        game.put()
 	#Get id for game
-	logging.info(('New game id = "%d"' % newgameid))
+	logging.info(('New game id = "%d", md5 = %s' % (newgameid, digest)))
 	# Create HTML email containing form for the opponent to join
 	msg = mail.EmailMessage(to=address,
 				sender=self.request.get('player'),
 				subject='Shall we play a game?',
-				html=('<html><body>You have been invited to play a game with %s. To do so, visit <a href="http://msg.appspot.com/joingame/%d">http://msg.appspot.com/joingame/%d</a>!' % (starting_player, newgameid, newgameid)))
+				html=('<html><body>You have been invited to play a game with %s. To do so, visit <a href="http://msg.appspot.com/joingame/%s">http://msg.appspot.com/joingame/%s</a>!' % (starting_player, digest, digest)))
 	try:
 	    msg.check_initialized()
 	    msg.send()

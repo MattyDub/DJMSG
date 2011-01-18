@@ -25,7 +25,7 @@ import handlers
 def main():
     application = webapp.WSGIApplication([('/', handlers.MainHandler),
 					  ('/startgame', handlers.GameStart),
-					  ('/joingame/([0-9]+)', handlers.GameJoinHandler),
+					  ('/joingame/([a-f0-9]+)', handlers.GameJoinHandler),
 					  ('/tasks/start', handlers.GameStartTask)],
                                          debug=True)
     util.run_wsgi_app(application)
