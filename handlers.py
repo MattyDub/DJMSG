@@ -32,11 +32,12 @@ class MainHandler(webapp.RequestHandler):
 	user = users.get_current_user()
 	if user:
 	    #TODO: set up session stuff?
-	    query = models.Game.all()
-	    query.filter('user = ', user)
+            query = models.Game.all()
+            query.filter('players = ', user)
 	    template_values = {}
 	    results = query.fetch(10)
             logging.info("There are %d game(s) for logged-in user %s" % (len(results), user))
+            logging.info(type(results[0]))
 	    template_values['games'] = results
 	    template_values['name'] = user.nickname()
 	    template_values['url'] = users.create_logout_url(self.request.uri)
@@ -87,20 +88,26 @@ class GameJoinHandler(webapp.RequestHandler):
         query.filter('idhash = ', id)
         results = query.fetch(1) # TODO: is there a better way to do this?
         if results and len(results) > 0:
+            logging.info("%d game(s) found to join, joining first" % len(results))
             game = results[0]
             user = users.get_current_user()
             if game and user:
                 game.mapname = 'Open Field'
+                l1 = game.players
                 game.players.append(user)
+                l2 = game.players
+                logging.info("Before, players were: " + ",".join([str(l) for l in l1]))
+                logging.info("After, players are  : " + ",".join([str(l) for l in l2]))
                 state = game.state
                 state.state = 'active'
                 state.put()
                 game.put()
                 l = game.players
-                logging.info("Players for game are: '" + ",".join(l) + "'")
                 self.redirect('/')
             else: #no game or no user: TODO
                 self.response.out.write("Either you aren't logged in, or you're trying to join a game that doesn't exist.  If you feel you have reached this message in error, please contact an administrator.")
+        else:
+            self.response.out.write("You're trying to join a game that doesn't exist.  If you fel you reached this message in error, please contact an administrator.")
 	    
 #TODO: starting and joining should be POST methods; how do we make a game join a POST?
 class GameStartTask(webapp.RequestHandler):

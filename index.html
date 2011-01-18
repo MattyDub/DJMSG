@@ -8,9 +8,18 @@
     <a href="{{ url }}">logout</a>
     <div id="gamelist">
       <h2>GAMES</h2>
+      <table>
+	<tr>
+	  <td>Map</td>
+	  <td>Opponents</td>
+	</tr>
       {% for game in games %}
-      <b>{{ game }}</b>
-      {% endfor %}
+	<tr>
+          <td>{{ game.mapname }}</td>
+	  <td>{{ game.players }}</td>
+	</tr>
+     {% endfor %}
+      </table>
     </div>
   <div id="newgame">
     <form action="/startgame" method="post">
