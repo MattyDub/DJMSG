@@ -18,7 +18,8 @@ from google.appengine.api import users
 class GameState(db.Model):
     active_player = db.UserProperty()
     state = db.StringProperty(choices = ('wait_for_player','active','complete'))
-
+    turn = db.IntegerProperty()
+    
 class Unit(db.Model):
     player = db.UserProperty(required=True)
     unit_type = db.StringProperty(required=True,
