@@ -107,9 +107,27 @@ class GameJoinHandler(webapp.RequestHandler):
             else: #no game or no user: TODO
                 self.response.out.write("Either you aren't logged in, or you're trying to join a game that doesn't exist.  If you feel you have reached this message in error, please contact an administrator.")
         else:
-            self.response.out.write("You're trying to join a game that doesn't exist.  If you fel you reached this message in error, please contact an administrator.")
+            self.response.out.write("You're trying to join a game that doesn't exist.  If you feel you reached this message in error, please contact an administrator.")
 	    
-#TODO: starting and joining should be POST methods; how do we make a game join a POST?
+class PlayHandler(webapp.RequestHandler):
+    @login_required
+    def get(self, id):
+        user = users.get_current_user()
+        query = models.Game.all()
+        query.filter('idhash = ', id)
+        game = query.get()
+        if user in game.players:
+            state = game.state
+            if user != state.active_player:
+                logging.warn("Player %s tried to access game %s; not her turn"
+                             % (user, id))
+                self.redirect('/') #TODO: better idea?
+            template_values = {}
+            template_values['turn'] = state.turn
+        else:
+            logging.error("Player %s tried to access game %s, and wasn't found in datastore." % (user, id))
+            self.response.out.write("You can't access this game")
+            
 class GameStartTask(webapp.RequestHandler):
     def post(self):
 	address = self.request.get('address')
