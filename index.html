@@ -1,44 +1,59 @@
+<!--
+Copyright 2011 Matthew Wyatt
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
 <html>
-  <head>
-    <link rel="stylesheet" href="static/style.css" type="text/css">
-  </head>
-  <body>
-    <div id="header">
-      {% if name %}
-         Hello, {{name}}!
-      {% else %}
-         Hello, I love you, won't you tell me your name?
-      {% endif %}
-      <a href="{{ url }}">logout</a>
-    </div>
-  <div id="newgame">
-    <form action="/startgame" method="post">
-      <label for="address">Opponent's address:</label>
-      <input name="address" type="text"/><br/>
-      <input type="submit" value="Invite opponent"/>
-    </form>
-  </div>
-    <div id="gamelist">
-      <h2>GAMES</h2>
-      <table>
-	<tr>
-	  <td>Map</td>
-	  <td>Players</td>
-	  <td>Active Player</td>
-	</tr>
-	<!-- TODO: do we want to have all this object knowledge here? -->
-      {% for game in games %}
-	<tr>
-          <td>{{ game.mapname }}</td>
-	  <td>
-	    {% for player in game.players %}
-	    {{ player.nickname }}
-	    {% endfor %}
-	  </td>
-	  <td>{{ game.state.active_player }}</td>
-	</tr>
-     {% endfor %}
-      </table>
-    </div>
- </body>
+<head>
+<link rel="stylesheet" href="static/style.css" type="text/css">
+</head>
+<body>
+<div id="header">
+  {% if name %}
+  Hello, {{name}}!
+  {% else %}
+  Hello, I love you, won't you tell me your name?
+  {% endif %}
+  <a href="{{ url }}">logout</a>
+</div>
+<div id="newgame">
+  <form action="/startgame" method="post">
+  <label for="address">Opponent's address:</label>
+  <input name="address" type="text"/><br/>
+  <input type="submit" value="Invite opponent"/>
+  </form>
+</div>
+<div id="gamelist">
+  <h2>GAMES</h2>
+  <table>
+    <tr>
+      <td>Map</td>
+      <td>Players</td>
+      <td>Active Player</td>
+    </tr>
+    <!-- TODO: do we want to have all this object knowledge here? -->
+    {% for game in games %}
+    <tr>
+      <td>{{ game.mapname }}</td>
+      <td>
+	{% for player in game.players %}
+	{{ player.nickname }}
+	{% endfor %}
+      </td>
+      <td>{{ game.state.active_player }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+</body>
 </html>
