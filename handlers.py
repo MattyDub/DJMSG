@@ -70,13 +70,13 @@ class GameJoinHandler(webapp.RequestHandler):
             logging.info("players for game " + str(id))
             for p in game.players:
                 logging.info(p)
-                template_values = {}
-                state = game.state
-                opp= state.active_player.nickname()
-                url = "/joingame/%s" % id
-                template_values['opponent'] = opp
-                template_values['url'] = url
-                path = os.path.join(os.path.dirname(__file__), 'joingame.html')
+            template_values = {}
+            state = game.state
+            opp= state.active_player.nickname()
+            url = "/joingame/%s" % id
+            template_values['opponent'] = opp
+            template_values['url'] = url
+            path = os.path.join(os.path.dirname(__file__), 'joingame.html')
             self.response.out.write(template.render(path, template_values))
         else: #TODO: figure this out
             self.response.out.write("You are trying to join a game that doesn't exist.  If you feel this is an error, please contact the site administrator.")
@@ -125,6 +125,8 @@ class PlayHandler(webapp.RequestHandler):
                 self.redirect('/') #TODO: better idea?
             template_values = {}
             template_values['turn'] = state.turn
+            path = os.path.join(os.path.dirname(__file__), 'play.html')
+            self.response.out.write(template.render(path, template_values))
         else:
             logging.error("Player %s tried to access game %s, and wasn't found in datastore." % (user, id))
             self.response.out.write("You can't access this game")
