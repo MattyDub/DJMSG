@@ -1,3 +1,5 @@
 queue:
 - name: start
+  rate: 5/s
 - name: processturn
+  rate: 5/s
