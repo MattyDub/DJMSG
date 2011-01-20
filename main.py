@@ -24,10 +24,11 @@ import handlers
 
 def main():
     application = webapp.WSGIApplication([('/', handlers.MainHandler),
-					  ('/startgame', handlers.GameStart),
-					  ('/joingame/([a-f0-9]+)', handlers.GameJoinHandler),
-					  ('/tasks/start', handlers.GameStartTask)],
-                                         debug=True)
+                      ('/startgame', handlers.GameStart),
+                      ('/joingame/([a-f0-9]+)', handlers.GameJoinHandler),
+                      ('/play/([a-f0-9]+)', handlers.PlayHandler),
+                      ('/tasks/start', handlers.GameStartTask)],
+                      debug=True)
     util.run_wsgi_app(application)
 
 if __name__ == '__main__':
