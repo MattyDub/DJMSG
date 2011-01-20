@@ -3,26 +3,13 @@
     <link rel="stylesheet" href="static/style.css" type="text/css">
   </head>
   <body>
-    {% if name %}
-       Hello, {{name}}!
-    {% else %}
-       Hello, I love you, won't you tell me your name?
-    {% endif %}
-    <a href="{{ url }}">logout</a>
-    <div id="gamelist">
-      <h2>GAMES</h2>
-      <table>
-	<tr>
-	  <td>Map</td>
-	  <td>Opponents</td>
-	</tr>
-      {% for game in games %}
-	<tr>
-          <td>{{ game.mapname }}</td>
-	  <td>{{ game.players }}</td>
-	</tr>
-     {% endfor %}
-      </table>
+    <div id="header">
+      {% if name %}
+         Hello, {{name}}!
+      {% else %}
+         Hello, I love you, won't you tell me your name?
+      {% endif %}
+      <a href="{{ url }}">logout</a>
     </div>
   <div id="newgame">
     <form action="/startgame" method="post">
@@ -31,5 +18,27 @@
       <input type="submit" value="Invite opponent"/>
     </form>
   </div>
-  </body>
+    <div id="gamelist">
+      <h2>GAMES</h2>
+      <table>
+	<tr>
+	  <td>Map</td>
+	  <td>Players</td>
+	  <td>Active Player</td>
+	</tr>
+	<!-- TODO: do we want to have all this object knowledge here? -->
+      {% for game in games %}
+	<tr>
+          <td>{{ game.mapname }}</td>
+	  <td>
+	    {% for player in game.players %}
+	    {{ player.nickname }}
+	    {% endfor %}
+	  </td>
+	  <td>{{ game.state.active_player }}</td>
+	</tr>
+     {% endfor %}
+      </table>
+    </div>
+ </body>
 </html>
