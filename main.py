@@ -27,6 +27,7 @@ def main():
                       ('/startgame', handlers.GameStart),
                       ('/joingame/([a-f0-9]+)', handlers.GameJoinHandler),
                       ('/play/([a-f0-9]+)', handlers.PlayHandler),
+                      ('/gamestate/([a-f0-9]+)', handlers.GameStateHandler),
                       ('/tasks/start', handlers.GameStartTask)],
                       debug=True)
     util.run_wsgi_app(application)
