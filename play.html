@@ -18,6 +18,10 @@ limitations under the License.
 <html> <head>
 <title>MSG</title>
 <link rel="stylesheet" href="static/style.css" type="text/css">
+<script src="/static/req.js"></script>
+<script src="/static/maps.json"></script>
+<script src="/static/raphael-min.js"></script>
+<script src="/static/msgui.js"></script>
 <!-- now the script stuff: TODO -->
 <!--  Do we want to have the I/O and the GUI in separate scripts?  How -->
 <!--  do we do it so it's a) understandable and b) efficient? -->
@@ -26,9 +30,21 @@ limitations under the License.
 <!--  draw method be the callback for the XmlHttpRequest? If so, what -->
 <!--  if window.onload hasn't fired...?  How do we represent map data -->
 <!--  to avoid duplicating it between server and client? -->
+<script type="text/javascript">
+    window.onload = msgvis(msg_maps.{{map}},null);
+</script>
 </head>
 <body>
-<h2>Turn {{ turn }}</h2>
+<div id="header">
+  {% if name %}
+  Hello, {{name}}!
+  {% else %}
+  Hello, I love you, won't you tell me your name?
+  {% endif %}
+  <a href="{{ url }}">logout</a>
+</div>
 
+<h2>Turn {{ turn }}</h2>
+<div id="holder"></div>
 </body>
 </html>
