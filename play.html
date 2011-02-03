@@ -18,6 +18,14 @@ limitations under the License.
 <html> <head>
 <title>MSG</title>
 <link rel="stylesheet" href="static/style.css" type="text/css">
+<!-- now the script stuff: TODO -->
+<!--  Do we want to have the I/O and the GUI in separate scripts?  How -->
+<!--  do we do it so it's a) understandable and b) efficient? -->
+<!--  Questions: if we have a pending XmlHttpRequest to get our JSON -->
+<!--  game state data, does window.onload fire? Should we have the -->
+<!--  draw method be the callback for the XmlHttpRequest? If so, what -->
+<!--  if window.onload hasn't fired...?  How do we represent map data -->
+<!--  to avoid duplicating it between server and client? -->
 </head>
 <body>
 <h2>Turn {{ turn }}</h2>
