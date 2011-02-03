@@ -27,6 +27,7 @@ class Unit(db.Model):
     xpos = db.IntegerProperty()
     ypos = db.IntegerProperty()
     attack = db.StringProperty() # This is iffy - don't know how this will work yet
+    hp = db.IntegerProperty()
     state = db.ReferenceProperty(GameState, collection_name='units')
 
 class Game(db.Model):
