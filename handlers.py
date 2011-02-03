@@ -19,6 +19,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import login_required
 from google.appengine.ext.db import GqlQuery, run_in_transaction
 from google.appengine.ext.webapp import template
+from django.utils import simplejson
 import models
 import os, logging
 from hashlib import md5
@@ -132,7 +133,25 @@ class PlayHandler(webapp.RequestHandler):
         else:
             logging.error("Player %s tried to access game %s, and wasn't found in datastore." % (user, id))
             self.response.out.write("You can't access this game")
-            
+
+class GameStateHandler(webapp.RequestHandler):
+    @login_required
+    def get(self, id):
+        user = users.get_current_user()
+        query = models.Game.all()
+        query.filter('idhash = ', id)
+        game = query.get()
+        if game and user in game.players:
+            state = game.state
+            units = state.units
+            resp = {}
+            uns = []
+            for unit in units:
+                uns.append({'player':unit.player,'type':unit.unit_type,
+                            'x':unit.xpos,'y':unit.ypos,'hp':unit.hp})
+            resp['units'] = uns
+            self.response.out.write(simplejson.dumps(resp))
+
 class GameStartTask(webapp.RequestHandler):
     def post(self):
         address = self.request.get('address')
