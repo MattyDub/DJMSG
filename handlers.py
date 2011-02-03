@@ -37,7 +37,6 @@ class MainHandler(webapp.RequestHandler):
             template_values = {}
             results = query.fetch(10)
             logging.info("There are %d game(s) for logged-in user %s" % (len(results), user))
-            logging.info(type(results[0]))
             template_values['games'] = results
             template_values['name'] = user.nickname()
             template_values['url'] = users.create_logout_url(self.request.uri)
@@ -91,7 +90,7 @@ class GameJoinHandler(webapp.RequestHandler):
             game = results[0]
             user = users.get_current_user()
             if game and user:
-                game.mapname = 'Open Field'
+                game.mapname = 'small'
                 l1 = game.players
                 game.players.append(user)
                 l2 = game.players
@@ -125,6 +124,9 @@ class PlayHandler(webapp.RequestHandler):
                 self.redirect('/') #TODO: better idea?
             template_values = {}
             template_values['turn'] = state.turn
+            template_values['map'] = game.mapname
+            template_values['name'] = user.nickname()
+            template_values['url'] = users.create_logout_url(self.request.uri)
             path = os.path.join(os.path.dirname(__file__), 'play.html')
             self.response.out.write(template.render(path, template_values))
         else:
