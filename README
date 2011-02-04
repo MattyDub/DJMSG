@@ -1,1 +1,5 @@
 MSG is Matt's Strategy Game. It runs on Google App Engine.
+
+The game is intended to be a turn-based strategy game, played asynchronously - that is, the players of a particular game don't need to be online at the same time.
+
+The current plan is to get something playable, and then iterate on it with a select group of playtesters.
